@@ -1,0 +1,107 @@
+== Elixir
+
+=== 基础
+
+==== Mix
+
+.mix.task
+[source, bash]
+----
+mix deps.get
+
+mix ecto.setup
+
+mix phx.server
+
+iex -S mix
+----
+
+==== 关键字列表
+
+.keyword list
+[source, elixir]
+----
+opts = [atom: 1, atom: 2]
+
+Keyword.get_values(opts, :atom)
+----
+
+==== 结构体
+[source, elixir]
+----
+defmodule User do
+  defstruct [:id, :city, :company, :gender]
+end
+----
+
+==== 模块
+
+.alias.example
+[source, elixir]
+----
+# defmacro alias(module, opts)
+alias Ubax.{Repo, User}
+----
+
+.import.example
+[source, elixir]
+----
+# defmacro import(module, opts)
+import Ecto.Query
+----
+
+.use.example.1
+[source, elixir]
+----
+defmodule A do
+  defmacro __using__(_opts) do
+    quote do
+      def m do
+        "A#m"
+      end
+    end
+  end
+end
+
+defmodule M do
+  # 调用 A.__using__/1
+  use A
+end
+
+M.m
+----
+
+.use.example.2
+[source, elixir]
+----
+defmodule A do
+  defmacro __using__(opts) do
+    alias = Keyword.get(opts, :alias, "method")
+    quote do
+      def m do
+          "A##{unquote(alias)}"
+      end
+    end
+  end
+end
+
+defmodule M do
+  use A, alias: "action"
+end
+
+M.m
+
+----
+
+==== 管道操作符
+
+.example
+[source, elixir]
+----
+"Hello Elixir" |> String.split()
+----
+
+=== 中级
+
+
+=== 高级

@@ -1,0 +1,13 @@
+== Vue3
+
+=== 起步
+
+.install
+[source, bash]
+----
+npm init vite@latest ubai -- --template vue
+
+cd ubai
+npm install
+npm run dev
+----

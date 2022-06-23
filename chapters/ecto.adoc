@@ -1,0 +1,216 @@
+== Ecto
+
+=== 起点应用
+
+.phx.gen.schema
+[source, bash]
+----
+mix phx.gen.schema Order orders user_id:integer
+mix phx.gen.schema User users gender:string company:string city:string
+mix phx.gen.schema Event events anonymous_id:string user_id:integer event:string
+mix ecto.migrate
+iex -S mix
+
+alias Ubax.{Repo, User, Event}
+----
+
+=== Ecto 基础
+
+* `Repo`，数据库代理
+* `Query`，查询模块
+* `Schema`，数据表映射
+* `Changeset`，数据变更
+* `Multi`，事务管理
+* `Migration`，数据库迁移
+
+==== Repo 模块
+
+Repository 模式，而非 ActiveRecord 模式。
+
+.repo
+[source, elixir]
+----
+defmodule Ubax.Repo do
+  use Ecto.Repo,
+    otp_app: :ubax,
+    adapter: Ecto.Adapters.Postgres
+end
+----
+
+`use Ecto.Repo` 调用 `Ecto.Repo.__using__/1`。
+
+.ecto.repo
+[source, elixir]
+----
+defmodule Ecto.Repo do
+  defmacro __using__(opts) do
+    quote bind_quoted: [opts: opts] do
+      @behaviour Ecto.Repo
+      ## Transactions
+      ## Schemas
+      ## Queryable
+    end
+  end
+end
+----
+
+
+.repo.crud
+[source, bash]
+----
+alias Ubax.{Repo, User}
+
+Repo.insert(%User{city: "Beijing", company: "Duck", gender: "Male"})
+
+user = Repo.get_by(User, id: 1)
+
+Repo.update(Ecto.Changeset.change(user, city: "Shanghai"))
+
+user = Repo.get_by(User, id: 1)
+
+Repo.delete(user)
+
+Repo.all(User)
+----
+
+.repo.raw.sql
+[source, elixir]
+----
+Repo.query("select * from users")
+----
+
+==== Query 模块
+
+Repo 可以执行原生 SQL。
+
+.import
+[source, elixir]
+----
+import Ecto.Query
+----
+
+.keyword.syntax
+[source, elixir]
+----
+query = from t in "events", where: t.event == "order", select: [t.user_id, t.inserted_at]
+----
+
+.macro.syntax
+[source, elixir]
+----
+query = "events" |> where([t], t.event == "order") |> select([t], [t.user_id])
+----
+
+.query
+[source, elixir]
+----
+Repo.to_sql(:all, query)
+# Ecto.Adapters.SQL.to_sql(:all, Repo, query)
+Repo.all(query)
+----
+
+.where.clause
+[source, elixir]
+----
+q = from "events", where: [event: "order"], select: [:id, :event, :user_id]
+Repo.all(q)
+----
+
+.dynamic.variable
+[source, elixir]
+----
+event_name = "order"
+q = from "events", where: [event: ^event_name], select: [:id, :event, :user_id]
+# q = from "events", where: [event: ^(event_name)], select: [:id, :event, :user_id]
+# 防止 SQL 注入
+Repo.to_sql(q)
+----
+
+.type
+[source, elixir]
+----
+event_id = "1"
+q = from "events", where: [id: type(^event_id, :integer)], select: [:event]
+----
+
+.query bindings
+[source, elixir]
+----
+q = from t in "events", where: t.event == "order", select: [:user_id]
+----
+
+.query api
+[source, elixir]
+----
+import Ecto.Query.API
+----
+
+.fragment
+[source, elixir]
+----
+q = from t in "events", where: fragment("lower(?)", t.event) == "order", select: [t.user_id]
+----
+
+.union
+[source, elixir]
+----
+q1 = from order in "orders", select: [order.user_id]
+q2 = from event in "events", select: [event.user_id]
+q = q1 |> union(^q2)
+----
+
+.order/group
+[source, elixir]
+----
+q = from t in "events", select: [t.event], order_by: t.id
+q = from t in "events", select: [t.event], order_by: [desc: t.id]
+
+q = from t in "events", select: [t.user_id, count(t.event)], group_by: [t.user_id]
+----
+
+.join
+[source, elixir]
+----
+q = from u in "users", join: e in "events", on: u.id == e.user_id, where: u.id > 1, select: [u.id, e.event]
+
+----
+
+==== Schema 模块
+
+关联表和结构
+
+.query
+[source, elixir]
+----
+alias Ubax.{Event}
+
+
+event_id = "1"
+q = from Event, where: [id: ^event_id]
+----
+
+.insert
+[source, elixir]
+----
+Repo.insert(%Event{...})
+Repo.insert_all(Event, [[...], [...]])
+----
+
+.delete
+[source, elixir]
+----
+from(t in "events", where t.event == "order") |> Repo.delete_all
+----
+
+.association
+[source, elixir]
+----
+----
+
+==== Changeset 模块
+
+==== Multi 模块
+
+==== Migration 模块
+
+=== Ecto 应用

@@ -1,0 +1,39 @@
+= Alchemy Manual
+ZhenyuanLua
+:doctype: book
+:description: 炼丹手册
+:sectanchors:
+:url-repo: https://github.com/zhenyuanlau/alchemy-man
+
+:encoding: utf-8
+:lang: zh_CN
+:toc: left
+:toclevels: 3
+:experimental:
+:icons: font
+:partnums:
+:sectnums:
+:sectlinks:
+:!compat-mode:
+:source-highlighter: rouge
+:imagesdir: resources/images
+:ditaa-shadows: false
+:ditaa-transparent: true
+:attribute-missing: warn
+:xrefstyle: short
+
+
+include::chapters/absinthe.adoc[]
+
+include::chapters/ecto.adoc[]
+
+include::chapters/elixir.adoc[]
+
+include::chapters/graphql.adoc[]
+
+include::chapters/phoenix.adoc[]
+
+include::chapters/vue3.adoc[]
+
+[bibliography]
+include::chapters/references.adoc[]

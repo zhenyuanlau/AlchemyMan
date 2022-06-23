@@ -1,0 +1,8 @@
+== GraphQL
+
+领域模型/GraphQL Schema
+
+=== 参考
+
+link:https://graphql.org/[GraphQL]
+

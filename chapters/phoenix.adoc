@@ -1,0 +1,9 @@
+== PhoenixFramework
+
+=== Contexts
+
+link:https://hexdocs.pm/phoenix/contexts.html[Phoenix Contexts]
+
+Contexts are dedicated modules that expose and group related functionality.
+
+In Phoenix, contexts often encapsulate data access and data validation.

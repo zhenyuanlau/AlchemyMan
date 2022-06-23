@@ -1,0 +1,119 @@
+== Absinthe
+
+Elixir 的 GraphQL 工具箱。
+
+支持 GraphQL 模式定义， GraphQL运行时。
+
+=== 集成 Phoenix
+
+.setup
+[source, elixir]
+----
+# filename: mix.exs
+def deps do
+  [
+    {:absinthe_plug, "~> 1.5"},
+    {:jason, "~> 1.0"},
+  ]
+end
+
+# filename: router.ex
+defmodule UbaxWeb.Router do
+  scope "/api" do
+    pipe_through :api
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+        schema: UbaxWeb.Schema
+
+    forward "/", Absinthe.Plug,
+        schema: UbaxWeb.Schema
+  end
+end
+----
+
+=== 定义 GraphQL Schema
+
+.define schema
+[source, elixir]
+----
+defmodule UbaxWeb.Schema do
+  use Absinthe.Schema
+
+  query do
+    # snip
+  end
+
+  object :event do
+    # fields
+  end
+end
+----
+
+.lookup type
+[source, bash]
+----
+iex -S mix
+
+Absinthe.Schema.lookup_type(UbaxWeb.Schema, "Event")
+Absinthe.Schema.lookup_type(UbaxWeb.Schema, "RootQueryType")
+----
+
+==== 定义 GraphQL Object Type
+
+.define object type
+[source, elixir]
+----
+defmodule UbaxWeb.Schema.EventTypes do
+  use Absinthe.Schema.Notation
+
+  object :event do
+    field :id, :id
+    field :user_id, :integer
+    field :event, :string
+  end
+end
+----
+
+==== GraphQL 请求&响应
+
+.define query
+[source, elixir]
+----
+query do
+  @desc "Get all events"
+  field :events, list_of(:event) do
+    resolve &Resolvers.Event.list_events/3
+  end
+end
+----
+
+.define router
+[source, elixir]
+----
+scope "/" do
+  pipe_through :api
+
+  forward "/api", Absinthe.Plug,
+    schema: UbaxWeb.Schema
+
+  forward "/graphiql", Absinthe.Plug.GraphiQL,
+    schema: UbaxWeb.Schema
+end
+----
+
+.start server
+[source, bash]
+----
+mix phx.server
+----
+
+.graphiql
+[source, bash]
+----
+# http://localhost:4000/graphiql
+{
+  events {
+    id
+  }
+}
+----
